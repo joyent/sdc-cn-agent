@@ -42,3 +42,64 @@ To run the cn-agent:
     git clone git@github.com:joyent/sdc-cn-agent.git
     cd sdc-cn-agent
     git submodule update --init
+
+## Linux port
+
+To build, you need node 6, as this requires lockfd, which has not yet been
+updated for node 8+.
+
+```
+$ curl https://nodejs.org/dist/v6.17.1/node-v6.17.1-linux-x64.tar.gz | sudo tar xzf - -C /opt
+$ PATH=/opt/node-v6.17.1-linux-x64/bin:$PATH make
+```
+
+The plan:
+
+- Initially no support for:
+  - Docker
+  - Snapshots
+  - Migration
+- Explore the use of [node-libvirt](https://github.com/hooklift/node-libvirt) to
+  implement the required tasks.
+
+### Example: sysinfo
+
+In the SmartOS version, sysinfo is a bash script that processes text.  Various
+Linux tools are happy to print configuration in JSON, implying bash is the wrong
+tool.  The following script can be used to see sysinfo output:
+
+```
+#! /usr/node/bin/node
+
+sysinfo = require('/__FIXME__/sdc-cn-agent/lib/backends/linux/sysinfo');
+
+// If there is an error, it is probably a MultiError (see VError module).
+// If you run this without root privs, dmidecode will fail but everything else
+// should succed.  When cn-agent runs calls sysInfo(), it fails if any errors
+// are returned.
+sysinfo.sysInfo(null, function (err, info) {
+    console.log(JSON.stringify(info, null, 2))
+});
+```
+
+### Example API call with curl
+
+The following illustrates how to call the `image_get` task for the image with
+the specified uuid.  The `ip` is the admin IP listed in sysinfo.
+
+```
+#! /bin/bash
+
+ip=a.b.c.d
+json='{
+  "task": "image_get",
+  "params": {
+    "uuid": "63d6e664-3f1f-11e8-aef6-a3120cf8dd9d"
+  }
+}'
+
+curl -X POST \
+    -H "Content-Type: application/json" \
+    -H "accept: application/json" \
+    -d "$json" http://$ip/tasks
+```
