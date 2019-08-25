@@ -10,7 +10,7 @@ apisections: Task Agent HTTP API
 -->
 
 <!--
-    Copyright (c) 2019, Joyent, Inc.
+    Copyright 2019 Joyent, Inc.
 -->
 
 # cn-agent
@@ -159,12 +159,122 @@ Add a NIC to a machine
         }
     }
 
+### Example API call with curl
+
+The following illustrates how to call the `image_get` task for the image with
+the specified uuid.  The `ip` is the admin IP listed in sysinfo.
+
+```
+#! /bin/bash
+
+ip=a.b.c.d
+json='{
+  "task": "image_get",
+  "params": {
+    "uuid": "63d6e664-3f1f-11e8-aef6-a3120cf8dd9d"
+  }
+}'
+
+curl -X POST \
+    -H "Content-Type: application/json" \
+    -H "accept: application/json" \
+    -d "$json" http://$ip/tasks
+```
 
 # Tasks
 
-# Agent Tasks
+## Server tasks
 
-## agents_uninstall
+### server_sysinfo
+
+Get information about the server.
+
+#### Inputs
+
+None, but `params` must be specified.
+
+#### Outputs
+
+XXX-mg document the fields?  Include example with vnics and aggrs?
+
+```json
+{
+  "sysinfo": {
+    "Live Image": "20190228T233723Z",
+    "System Type": "SunOS",
+    "Boot Time": "1565990217",
+    "Datacenter Name": "us-atl1",
+    "SDC Version": "7.0",
+    "Manufacturer": "Supermicro",
+    "Product": "MBI-6219G-T7LX",
+    "Serial Number": "S248025X8B06430",
+    "SKU Number": "To be filled by O.E.M.",
+    "HW Version": "0123456789",
+    "HW Family": "To be filled by O.E.M.",
+    "Setup": "true",
+    "VM Capable": true,
+    "Bhyve Capable": true,
+    "Bhyve Max Vcpus": 32,
+    "HVM API": true,
+    "CPU Type": "Intel(R) Xeon(R) CPU E3-1578L v5 @ 2.00GHz",
+    "CPU Virtualization": "vmx",
+    "CPU Physical Cores": 1,
+    "Admin NIC Tag": "admin",
+    "Admin IP": "10.0.42.50",
+    "UUID": "00000000-0000-0000-0000-ac1f6b2c3d0a",
+    "Hostname": "ac-1f-6b-2c-3d-0b",
+    "CPU Total Cores": 8,
+    "MiB of Memory": "32676",
+    "Zpool": "zones",
+    "Zpool Disks": "c1t3d0",
+    "Zpool Profile": "striped",
+    "Zpool Creation": 1566608506,
+    "Zpool Size in GiB": 215,
+    "Disks": {
+      "c1t3d0": {
+        "Size in GB": 240
+      }
+    },
+    "Boot Parameters": {
+      "rabbitmq": "guest:guest:10.0.42.33:5672",
+      "rabbitmq_dns": "guest:guest:rabbitmq.us-atl1.joyentdev.com:5672",
+      "admin_nic": "ac:1f:6b:2c:3d:0b",
+      "console": "ttyb",
+      "boot_args": "",
+      "bootargs": ""
+    },
+    "SDC Agents": [
+      {
+        "name": "config-agent",
+        "version": "1.8.3"
+      },
+      ...
+    ],
+    "Network Interfaces": {
+      "i40e0": {
+        "MAC Address": "ac:1f:6b:2c:3d:0a",
+        "ip4addr": "",
+        "Link Status": "up",
+        "NIC Names": []
+      },
+      "i40e1": {
+        "MAC Address": "ac:1f:6b:2c:3d:0b",
+        "ip4addr": "10.0.42.50",
+        "Link Status": "up",
+        "NIC Names": [
+          "admin"
+        ]
+      }
+    },
+    "Virtual Network Interfaces": {},
+    "Link Aggregations": {}
+  }
+}
+```
+
+## Agent Tasks
+
+### agents_uninstall
 
 (Added in cn-agent v2.8.0.)
 
@@ -179,22 +289,39 @@ the task fails.
 There is no guard against passing "cn-agent" as the agent name to remove. The
 behaviour when passing this is undefined.
 
-### Inputs
+#### Inputs
 
-| Field  | Type    | Required? | Description                                                                                                                                                                                                                                                                                                                              |
-| ------ | ------- | --------- | ----------- |
+| Field  | Type    | Required? | Description                        |
+| ------ | ------- | --------- | ---------------------------------- |
 | agents | Array   | required  | The names of the agents to remove. |
 
-# Machine Tasks
+#### Outputs
 
-## machine_create_image
+An image manifest, as described in [sdc-imagapi documentation](https://github.com/joyent/sdc-imgapi/blob/master/docs/index.md#image-manifests).
+
+## Image Tasks
+
+### image_get
+
+Get information about an image that is present on system.
+
+| Field  | Type    | Required? | Description                          |
+| ------ | ------- | --------- | ------------------------------------ |
+| uuid   | UUID    | required  | The UUID of the image being queried. |
+
+#### Inputs
+
+
+## Machine Tasks
+
+### machine_create_image
 
 Called by CNAPI's
 [VmImagesCreate](https://mo.joyent.com/docs/cnapi/master/#VmImagesCreate)
 to create a new image from a prepared VM and publish it to the local DC's
 IMGAPI.
 
-### Inputs
+#### Inputs
 
 | Field            | Type    | Required? | Description                                                                                                                                                                                                                                                                                                                              |
 | ---------------- | ------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
