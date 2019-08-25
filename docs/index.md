@@ -295,22 +295,37 @@ behaviour when passing this is undefined.
 | ------ | ------- | --------- | ---------------------------------- |
 | agents | Array   | required  | The names of the agents to remove. |
 
+## Image Tasks
+
+### image_ensure_present
+
+Check to ensure an image is present in the specified pool. If it is not, import
+it from imgapi.
+
+#### Inputs
+
+| Field      | Type    | Required? | Description                          |
+| ---------- | ------- | --------- | ------------------------------------ |
+| image_uuid | UUID    | required  | The UUID of the image.               |
+| zpool      | String  | optional  | The zpool in which the image should exist.  If not specified, the defalt is the system zpool. |
+
 #### Outputs
 
-An image manifest, as described in [sdc-imagapi documentation](https://github.com/joyent/sdc-imgapi/blob/master/docs/index.md#image-manifests).
-
-## Image Tasks
+None.
 
 ### image_get
 
 Get information about an image that is present on system.
 
+#### Inputs
+
 | Field  | Type    | Required? | Description                          |
 | ------ | ------- | --------- | ------------------------------------ |
 | uuid   | UUID    | required  | The UUID of the image being queried. |
 
-#### Inputs
+#### Outputs
 
+An image manifest, as described in [sdc-imagapi documentation](https://github.com/joyent/sdc-imgapi/blob/master/docs/index.md#image-manifests).
 
 ## Machine Tasks
 
