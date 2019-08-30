@@ -382,13 +382,26 @@ IMGAPI.
 
 Returns success or failure after an optional delay.
 
+#### Inputs
+
+| Field  | Type    | Required? | Description                          |
+| ------ | ------- | --------- | ------------------------------------ |
+| sleep  | Number  | optional  | How long to sleep in seconds.        |
+| error  | String  | optional  | If provided, the fatal error to encounter. |
+
+### Outputs
+
+None
+
+### sleep
+
+Sleeps for the specified time or 5 seconds.
 
 #### Inputs
 
 | Field  | Type    | Required? | Description                          |
 | ------ | ------- | --------- | ------------------------------------ |
-| sleep  | Number  | optional  | How long to sleep                    |
-| error  | String  | optional  | If provided, the fatal error to encounter. |
+| timeout | Number | optional  | How long to sleep in miliseconds.    |
 
 ### Outputs
 
