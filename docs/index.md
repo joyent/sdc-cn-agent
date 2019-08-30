@@ -185,6 +185,32 @@ curl -X POST \
 
 ## Server tasks
 
+Execute the shell script that is provided.
+
+### command_execute
+
+#### Inputs
+
+| Field  | Type    | Required? | Description                        |
+| ------ | ------- | --------- | ---------------------------------- |
+| args   | Array   | optional  | Command line arguments to `script` |
+| env    | Object  | optional  | Environment variables for `script` |
+| script | String  | required  | The script to execute              |
+| timeout | Number | optional  | Timeout in milliseconds            |
+
+#### Outputs
+
+| Field  | Type    | Description                                                  |
+| ------ | ------- | ------------------------------------------------------------ |
+| err    | Object  | If not `null`, details of the error encountered.             |
+| exitCode | Number | Exit code from the script.  Is `null` on timeout: check `err`. |
+| signal | String  | Name of the signal that caused the script to exit.           |
+| stderr | String  | Output from script to stderr.                                |
+| stdout | String  | Output from script to stdout.                                |
+
+See [node-forkexec examples](https://github.com/joyent/node-forkexec#examples)
+fpr more information.
+
 ### server_sysinfo
 
 Get information about the server.
