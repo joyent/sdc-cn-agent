@@ -349,3 +349,21 @@ IMGAPI.
 | manifest.name    | String  | required  | The name for the image to be created.                                                                                                                                                                                                                                                                                                    |
 | manifest.version | String  | required  | The version for the image to be created.                                                                                                                                                                                                                                                                                                 |
 | imgapi_url       | URL     | required  | The URL of the IMGAPI to which the image will be published. Typically this the DC's local IMGAPI at "http://imgapi.$domain"                                                                                                                                                                                                              |
+
+## Misc / Test tasks
+
+### nop
+
+Returns success or failure after an optional delay.
+
+
+#### Inputs
+
+| Field  | Type    | Required? | Description                          |
+| ------ | ------- | --------- | ------------------------------------ |
+| sleep  | Number  | optional  | How long to sleep                    |
+| error  | String  | optional  | If provided, the fatal error to encounter. |
+
+### Outputs
+
+None
