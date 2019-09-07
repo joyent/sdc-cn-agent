@@ -355,6 +355,29 @@ An image manifest, as described in [sdc-imagapi documentation](https://github.co
 
 ## Machine Tasks
 
+### machine_create
+
+| Field               | Type    | Required? | Description                                    |
+| ------------------- | ------- | --------- | ---------------------------------------------- |
+| alias               | String  |           |                                                |
+| autoboot            | Boolean |           | |
+| billing_id          | UUID    |           | |
+| bootrom             | String  | Optional  | bhyve only: "uefi" or "bios"              |
+| brand               | String  | Required  | The zone brand.  Linux treats lx as lxc   |
+| cpu_cap             | Number  |           | Percentage of one CPU that may be used.  200 is 2 CPUs. |
+| cpu_sahres          | Number  |           | |
+| cpu_type            |         |           | |
+| customer_metadata   | Object  |           | |
+| datasets            |         |           | |
+
+| disks               | Array   | Required  | HVM only.
+| disks[0].image_uuid | UUID    |           | |
+| do_not_invetory     | Boolean | Optional  | |
+| firewall_rules      | Array   | Optional  | |
+| image_uuid          | UUID    | Required  | Containers only.  The image to use for the root dataset. |
+| uuid                | UUID    | Required  | The instance UUID. |
+| zpool               | String  | Optional  | The ZFS pool which will contain this instance. |
+
 ### machine_create_image
 
 Called by CNAPI's
@@ -368,13 +391,13 @@ IMGAPI.
 | ---------------- | ------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | compression      | String  | required  | The "compression" field as required by `imgadm create`. One of "none", "gzip" or "bzip2".                                                                                                                                                                                                                                                |
 | uuid             | UUID    | required  | UUID of a prepared and stopped VM from which the image will be created.                                                                                                                                                                                                                                                                  |
+| imgapi_url       | URL     | required  | The URL of the IMGAPI to which the image will be published. Typically this the DC's local IMGAPI at "http://imgapi.$domain"                                                                                                                                                                                                              |
 | incremental      | Boolean | optional  | Whether to create an incremental image. Default is false.                                                                                                                                                                                                                                                                                |
 | manifest         | Object  | required  | Manifest details for the image to be created. Those fields that are required are mentioned in this table. See [the image manifest docs](https://mo.joyent.com/docs/imgapi/master/#image-manifests) for full details. Some fields -- e.g. 'type', 'os' -- are inherited from the origin image (the image used to create the prepared VM). |
 | manifest.uuid    | UUID    | required  | A newly generated UUID to be used for the created image.                                                                                                                                                                                                                                                                                 |
 | manifest.owner   | UUID    | required  | The UUID of an existing user who will own the image.                                                                                                                                                                                                                                                                                     |
 | manifest.name    | String  | required  | The name for the image to be created.                                                                                                                                                                                                                                                                                                    |
 | manifest.version | String  | required  | The version for the image to be created.                                                                                                                                                                                                                                                                                                 |
-| imgapi_url       | URL     | required  | The URL of the IMGAPI to which the image will be published. Typically this the DC's local IMGAPI at "http://imgapi.$domain"                                                                                                                                                                                                              |
 
 ## Misc / Test tasks
 
