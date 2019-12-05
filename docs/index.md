@@ -373,7 +373,6 @@ An image manifest, as described in [sdc-imagapi documentation](https://github.co
 | cpu_type            |         |           | |
 | customer_metadata   | Object  |           | |
 | datasets            |         |           | |
-
 | disks               | Array   | Required  | HVM only.
 | disks[0].image_uuid | UUID    |           | |
 | do_not_invetory     | Boolean | Optional  | |

@@ -1,0 +1,43 @@
+#! /bin/bash
+
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+#
+# Copyright 2019 Joyent, Inc.
+#
+
+# This script calls the agents_uninstall action.
+
+ip=$1
+shift
+args=( $@ )
+
+if [[ -z $ip ]]; then
+	echo "Usage: $0 ip agent ..." 1>&2
+	exit 1
+fi
+
+set -eou pipefail
+
+. $(dirname $0)/utils.bash
+
+json='{
+	"task": "agents_uninstall",
+	"params": {
+		"agents": '$(make_array "${args[@]}")'
+	}
+}'
+
+echo "Request:"
+echo "$json"
+
+echo ""
+echo "Response:"
+curl -s -X POST \
+	-H "Content-Type: application/json" \
+	-H "accept: application/json" \
+	-d "$json" http://$ip:5309/tasks | json

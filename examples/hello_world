@@ -1,0 +1,13 @@
+#! /bin/bash
+
+# This script is helpful with command_execute
+
+echo "Hello World!"
+i=0
+for arg in "$@"; do
+	(( i++ ))
+	echo "arg$i: $arg"
+
+done
+echo "All done!" 1>&2
+exit $i

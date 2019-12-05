@@ -1,0 +1,56 @@
+#! /bin/bash
+
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+#
+# Copyright 2019 Joyent, Inc.
+#
+
+# This script calls the command_execute action.
+
+ip=$1
+script=$2
+shift 2
+args=("$@")
+
+if [[ -z $ip || -z $script ]]; then
+	echo "Usage: $0 ip script [args]" 1>&2
+	exit 1
+fi
+
+if [[ ! -f $script || ! -r $script ]]; then
+	echo "$0: $script: File not found or file not readable" 1>&2
+	exit 1
+fi
+
+if ! type -path jq >/dev/null 2>&1; then
+	echo "$0: $script: please install jq and try again" 1>&2
+	exit 1
+fi
+
+set -eou pipefail
+
+. $(dirname $0)/utils.bash
+
+# Note: timeout and env are also allowed but not supported here
+json='{
+	"task": "command_execute",
+	"params": {
+		"script": '$(escape_stdin < "$script")',
+		"args": '$(make_array "${args[@]}")'
+	}
+}'
+
+echo "Request:"
+echo "$json"
+
+echo ""
+echo "Response:"
+curl -s -X POST \
+	-H "Content-Type: application/json" \
+	-H "accept: application/json" \
+	-d "$json" http://$ip:5309/tasks | json

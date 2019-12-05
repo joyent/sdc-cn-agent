@@ -82,24 +82,7 @@ sysinfo.sysInfo(null, function (err, info) {
 });
 ```
 
-### Example API call with curl
+## Examples
 
-The following illustrates how to call the `image_get` task for the image with
-the specified uuid.  The `ip` is the admin IP listed in sysinfo.
-
-```
-#! /bin/bash
-
-ip=a.b.c.d
-json='{
-  "task": "image_get",
-  "params": {
-    "uuid": "63d6e664-3f1f-11e8-aef6-a3120cf8dd9d"
-  }
-}'
-
-curl -X POST \
-    -H "Content-Type: application/json" \
-    -H "accept: application/json" \
-    -d "$json" http://$ip/tasks
-```
+See the [examples](examples) directory for scripts that call the various
+actions.
