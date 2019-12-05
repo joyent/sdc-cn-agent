@@ -221,7 +221,11 @@ None, but `params` must be specified.
 
 #### Outputs
 
-XXX-mg document the fields?  Include example with vnics and aggrs?
+The fields of a sysinfo object are described in [sysinfo.md](sysinfo.md).  An
+example follows.
+
+XXX resolve whether those things that look like ints and bools can/should be
+ints and bools.
 
 ```json
 {
