@@ -178,8 +178,10 @@ json='{
 curl -X POST \
     -H "Content-Type: application/json" \
     -H "accept: application/json" \
-    -d "$json" http://$ip/tasks
+    -d "$json" http://$ip:5309/tasks
 ```
+
+See the [examples](../examples) directory for other examples.
 
 # Tasks
 
