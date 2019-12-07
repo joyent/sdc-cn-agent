@@ -16,3 +16,4 @@ cscope.out
 cn-agent-*.tgz
 cn-agent-*.manifest
 .*.swp
+cscope.*
