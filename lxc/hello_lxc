@@ -1,0 +1,42 @@
+#! /bin/bash
+
+set -xeuo pipefail
+
+top=/tmp/hellolxc
+mkdir -p /tmp/hellolxc
+cd /tmp/hellolxc
+mkdir -p bin var/www etc/httpd
+cd bin
+cp /usr/bin/busybox busybox
+for cmd in ls cat rm find ps echo date kill sleep true false test pwd sh which \
+    grep head wget; do
+	[[ -f $cmd ]] || ln busybox $cmd
+done
+
+cd
+
+cat >/tmp/hellolxc.xml <<EOF
+<domain type='lxc'>
+  <name>hellolxc</name>
+  <memory>102400</memory>
+  <os>
+    <type>exe</type>
+    <init>/bin/sh</init>
+  </os>
+  <devices>
+    <console type='pty' />
+  </devices>
+<!--
+	<filesystem type='mount'>
+	  <source dir='/tmp/hellolxc'/>
+	  <target dir='/'/>
+	</filesystem>
+-->
+</domain>
+EOF
+
+export LIBVIRT_DEFAULT_URI=lxc:///system
+virsh undefine hellolxc || true
+virsh define /tmp/hellolxc.xml
+virsh start hellolxc
+virsh console hellolxc

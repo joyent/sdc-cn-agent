@@ -1,0 +1,12 @@
+<!--
+	zpool create data ...
+	sudo virsh pool-create create_zpool_data.xml
+-->
+
+<pool type="zfs">
+  <name>data</name>
+  <source>
+    <name>data</name>
+  </source>
+</pool>
+

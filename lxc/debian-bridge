@@ -1,0 +1,23 @@
+Following instructions at
+https://jamielinux.com/docs/libvirt-networking-handbook/bridged-network.html,
+`/etc/network/interfaces` should have:
+
+```
+source /etc/network/interfaces.d/*
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface
+#allow-hotplug enp1s0
+#iface enp1s0 inet dhcp
+iface enp1s0 inet manual
+
+auto admin-br0
+iface admin-br0 inet dhcp
+	hwaddress ether 52:54:00:ed:fd:91
+	bridge_ports enp1s0
+	bridge_stp off
+	bridge_fd 0
+```

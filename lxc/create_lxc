@@ -1,0 +1,64 @@
+#! /bin/bash
+
+set -xeuo pipefail
+PS4='$LINENO+ '
+
+pool=data
+image=3dbbdcca-2eab-11e8-b925-23bf77789921
+inst=lxc1
+
+if ! zfs list $pool/$inst >/dev/null 2>&1; then
+	zfs clone $pool/$image@final $pool/$inst
+fi
+
+export TMPDIR=$(mktemp -d --tmpdir)
+trap 'rm -rf "$TMPDIR"' EXIT
+
+xmlfile="$TMPDIR/$inst.xml"
+
+cat >$xmlfile <<EOF
+<domain type='lxc'>
+  <name>$inst</name>
+  <memory unit='MiB'>512</memory>
+  <os>
+    <type>exe</type>
+    <init>/sbin/init</init>
+  </os>
+  <vcpu>1</vcpu>
+  <clock offset='utc'/>
+  <!-- libvirt destroy is equivalent to 'zoneadm halt' -->
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>destroy</on_crash>
+  <devices>
+    <console type='pty' />
+    <filesystem type='mount'>
+      <source dir='/$pool/$inst/root'/>
+      <target dir='/'/>
+    </filesystem>
+    <interface type='bridge'>
+      <source bridge='admin-br0'/>
+    </interface>
+    <console type='pty' />
+  </devices>
+</domain>
+EOF
+
+root=/$pool/$inst/root
+cat > $root/etc/sysconfig/network-scripts/ifcfg-eth0 <<EOF
+DEVICE=eth0
+BOOTPROTO=dhcp
+ONBOOT=yes
+EOF
+
+if [[ -f $HOME/.ssh/authorized_keys ]]; then
+	mkdir -m 700 -p "$root/root/.ssh"
+	cp $HOME/.ssh/authorized_keys $root/root/.ssh/authorized_keys
+fi
+
+export LIBVIRT_DEFAULT_URI=lxc:///system
+virsh destroy "$inst" || true
+virsh undefine "$inst" || true
+virsh define "$xmlfile"
+virsh start "$inst"
+virsh console "$inst"
