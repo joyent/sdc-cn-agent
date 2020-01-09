@@ -39,18 +39,123 @@ Some notable parts of the repo:
 
 To run the cn-agent:
 
-    git clone git@github.com:joyent/sdc-cn-agent.git
-    cd sdc-cn-agent
-    git submodule update --init
+```
+git clone git@github.com:joyent/sdc-cn-agent.git
+cd sdc-cn-agent
+git submodule update --init
+npm install
+sudo /usr/node/bin/node bin/cn-agent.js
+```
+
+The Linux port lacks some network knowledge.  For now, it should be this
+instead:
+
+```
+sudo env ADMIN_IP=192.168.1.183 /usr/node/bin/node bin/cn-agent.js
+```
 
 ## Linux port
 
-To build, you need node 6, as this requires lockfd, which has not yet been
-updated for node 8+.
+Development should be done on a VM running
+[linux-live](https://github.com/joyent/linux-live/tree/linuxcn).  You probably
+want to perform the following one-time setup on that box:
+
+The following steps will eventually be done by `joysetup` or similar.  For now
+they are manual.
+
+### One-time setup
 
 ```
-$ curl https://nodejs.org/dist/v6.17.1/node-v6.17.1-linux-x64.tar.gz | sudo tar xzf - -C /opt
-$ PATH=/opt/node-v6.17.1-linux-x64/bin:$PATH make
+zpool create triton $disk
+touch /triton/.system_pool
+
+zfs create -o canmount=noauto -o mountpoint=/ triton/platform
+zfs create -o canmount=noauto triton/platform/etc
+zfs create -o canmount=noauto triton/platform/etc/systemd
+zfs create triton/platform/etc/systemd/system
+zfs create -o canmount=noauto triton/platform/var
+zfs create triton/platform/var/imgadm
+zfs create triton/platform/var/ssh
+zfs create -o canmount=noauto triton/platform/lib
+zfs create triton/platform/lib/sdc
+```
+
+Put something like the following in /lib/sdc/config.sh:
+
+```
+#! /bin/bash
+
+cat <<NOMORE
+{
+  "ufds_admin_uuid": "930896af-bf8c-48d4-885c-6573a94b1853",
+  "imgapi_domain": "imgapi.coal-1.com",
+  "fwapi_domain": "fwapi.coal-1.com",
+  "binder_admin_ips": "10.99.99.11",
+  "datacenter_name": "coal-1",
+  "root_shadow": "\$6\$44Ksp7Uf\$Tu5IJnMVDkVVtWua.X13WNs.niE5Btj1Bdrcx6/7lwC/Ll8ai5Hs9bGn2C2fdKhebheWErEQgCRFEKYIYVhAV/",
+  "ntp_hosts": "10.99.99.7",
+  "ufds_admin_ips": "10.99.99.18",
+  "vmapi_domain": "vmapi.coal-1.com",
+  "root_authorized_keys_file": "root.authorized_keys",
+  "dns_resolvers": "8.8.8.8,8.8.4.4",
+  "assets_admin_ip": "10.99.99.8",
+  "imgapi_admin_ips": "10.99.99.21",
+  "dns_domain": "com",
+  "rabbitmq": "guest:guest:10.99.99.20:5672",
+  "dhcp_lease_time": "2592000",
+  "sapi_domain": "sapi.coal-1.com",
+  "vmapi_admin_ips": "10.99.99.26",
+  "swap": "0.25x",
+  "capi_client_url": "http://10.99.99.18:8080",
+  "config_inc_dir": "/opt/smartdc/config"
+}
+NOMORE
+```
+
+The following are needed to be able to create persistent users, presuming you
+don't do all your development as root.
+
+```
+zfs create triton/platform/etc/sysusers.d
+zfs create triton/platform/etc/sudoers.d
+zfs create -o mountpoint=/home triton/home
+```
+
+To create a persistent user:
+
+```
+user=bigbird
+comment="Big Bird"
+shell=/bin/bash
+useradd -s $shell -c "$comment" -d /home/$user $user
+echo "$user ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/$user
+uid=$(getent passwd $user | cut -d: -f3)
+echo "u $user $uid \"$comment\" /home/$user $shell" >/etc/sysusers.d/$user.conf
+```
+
+These bits will eventually become part of agents (or are only needed on dev
+machines):
+
+```
+apt update
+apt install -y git
+git clone https://github.com/joyent/node-imgadm /opt/img
+git clone https://github.com/joyent/sdc-imgapi-cli /opt/sdc-imgapi-cli
+```
+
+Until `cn-agent` is ported:
+
+```
+mkdir -p /opt/smartdc/agents/etc/
+echo '{ "no_rabbit": true }' > /opt/smartdc/agents/etc/cn-agent.config.json
+```
+### After every boot
+
+You may want to create a service if you are rebooting frequently.
+
+```
+apt update
+apt install -y git build-essential autoconf libtool
 ```
 
 The plan:
@@ -59,8 +164,9 @@ The plan:
   - Docker
   - Snapshots
   - Migration
-- Explore the use of [node-libvirt](https://github.com/hooklift/node-libvirt) to
-  implement the required tasks.
+- Rely on systemd as much as possible to serve as a level playing field for
+  whatever distro(s) is/are supported in the end.  Avoid libvirt-lxc, as that is
+  on the outs with RedHat/Centos/OracleLinux and perhaps Fedora in the future.
 
 ### Example: sysinfo
 
