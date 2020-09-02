@@ -5,7 +5,7 @@
  */
 
 /*
- * Copyright (c) 2018, Joyent, Inc.
+ * Copyright 2020 Joyent, Inc.
  */
 
 var os = require('os');
@@ -92,6 +92,11 @@ function main() {
                     cb();
                 });
             }, function ensureNoRabbit(_, cb) {
+                if (os.platform() === 'linux') {
+                    // Linux doesn't use rabbit at all.
+                    cb();
+                    return;
+                }
                 if (agentConfig.no_rabbit) {
                     cb();
                     return;
