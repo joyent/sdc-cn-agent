@@ -1,5 +1,6 @@
 {
-	"name": "cn-agent",
-	"path": "/opt/smartdc/agents/etc/cn-agent.config.json",
-	"post_cmd": "[[ $(svcs -Ho state cn-agent) == 'online' ]] && /usr/sbin/svcadm restart cn-agent || /usr/sbin/svcadm enable cn-agent; /usr/sbin/svcadm restart provisioner"
+    "name": "cn-agent",
+    "path": "/opt/smartdc/agents/etc/cn-agent.config.json",
+    "post_cmd": "[[ $(svcs -Ho state cn-agent) == 'online' ]] && /usr/sbin/svcadm restart cn-agent || /usr/sbin/svcadm enable cn-agent",
+    "post_cmd_linux": "[[ $(systemctl is-active triton-cn-agent) == 'active']] && systemctl reload-or-restart triton-cn-agent || systemctl enable triton-cn-agent; systemctl start triton-cn-agent"
 }

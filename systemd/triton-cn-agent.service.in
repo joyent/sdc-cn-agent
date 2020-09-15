@@ -1,0 +1,26 @@
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+#
+# Copyright 2020 Joyent, Inc.
+#
+
+#
+# This file is delivered as part of the Triton Platform Image.
+#
+[Unit]
+Description=Triton cn-agent used to manage Compute Nodes
+Documentation=https://github.com/joyent/linux-live/tree/linuxcn
+After=network.target
+
+[Service]
+Environment=PATH=/usr/node/bin:/usr/triton/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Type=simple
+ExecStart=/usr/node/bin/node --abort_on_uncaught_exception @@PREFIX@@/bin/cn-agent.js &amp;
+
+[Install]
+WantedBy=multi-user.target
+

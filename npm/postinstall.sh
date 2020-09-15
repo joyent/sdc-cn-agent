@@ -6,7 +6,7 @@
 #
 
 #
-# Copyright 2019 Joyent, Inc.
+# Copyright 2020 Joyent, Inc.
 #
 
 if [[ "${SDC_AGENT_SKIP_LIFECYCLE:-no}" = "yes" ]]; then
@@ -18,7 +18,11 @@ fi
 # We must load the SDC configuration before setting any strict error handling
 # options.
 #
-. /lib/sdc/config.sh
+if [[ "$(uname)" == "Linux" ]]; then
+    . /usr/triton/bin/config.sh
+else
+    . /lib/sdc/config.sh
+fi
 load_sdc_config
 
 ROOT="$(cd `dirname $0`/../ 2>/dev/null && pwd)"
@@ -125,6 +129,37 @@ function import_smf_manifest
         fatal 'could not process smf manifest (%s)' "${agent_setup_manifest_in}"
     fi
 }
+
+#
+# Same but for systemd services.
+#
+function import_system_services
+{
+    local agent_service_in="$ROOT/systemd/triton-cn-agent.service.in"
+    local agent_service_out="/etc/systemd/system/triton-cn-agent.service"
+    local agent_update_service_in="$ROOT/systemd/triton-cn-agent-update.service.in"
+    local agent_update_service_out="/etc/systemd/system/triton-cn-agent-update.service"
+
+    if [[ ! -f "${agent_service_in}" ]]; then
+        fatal 'could not find systemd service input file: %s' "${agent_service_in}"
+    fi
+
+    if ! subfile "${agent_service_in}" "${agent_service_out}" ||
+      ! systemctl enable "${agent_service_out}" ||
+      ! systemctl start "${agent_service_out}"; then
+        fatal 'could not process systemd service (%s)' "${agent_service_in}"
+    fi
+
+    if [[ ! -f "${agent_update_service_in}" ]]; then
+        fatal 'could not find systemd service input file: %s' "${agent_update_service_in}"
+    fi
+
+    if ! subfile "${agent_update_service_in}" "${agent_update_service_out}" ||
+      ! systemctl enable "${agent_update_service_out}"; then
+        fatal 'could not process systemd service (%s)' "${agent_update_service_in}"
+    fi
+}
+
 
 #
 # Each installation of an agent is represented by a SAPI instance of the SAPI
@@ -259,21 +294,28 @@ function add_config_agent_instance
 #
 function config_agent_restart
 {
-    local fmri='svc:/smartdc/application/config-agent:default'
-    local smf_state
+    if [[ "$(uname)" == "Linux" ]]; then
+        if [[ "$(/usr/bin/systemctl is-active triton-config-agent)" == "active" ]]; then
+            /usr/bin/systemctl reload-or-restart triton-config-agent
+        else
+            fatal 'could not restart config-agent service'
+        fi
+    else
+        local fmri='svc:/smartdc/application/config-agent:default'
+        local smf_state
 
-    if ! smf_state="$(svcs -H -o sta "${fmri}")"; then
-        printf 'No "config-agent" detected.  Skipping restart.\n' >&2
-        return 0
+        if ! smf_state="$(svcs -H -o sta "${fmri}")"; then
+            printf 'No "config-agent" detected.  Skipping restart.\n' >&2
+            return 0
+        fi
+
+        printf '"config-agent" detected in state "%s", posting restart.\n' \
+          "${smf_state}" >&2
+
+        if ! /usr/sbin/svcadm restart "${fmri}"; then
+            fatal 'could not restart config-agent instance'
+        fi
     fi
-
-    printf '"config-agent" detected in state "%s", posting restart.\n' \
-      "${smf_state}" >&2
-
-    if ! /usr/sbin/svcadm restart "${fmri}"; then
-        fatal 'could not restart config-agent instance'
-    fi
-
     return 0
 }
 
@@ -355,7 +397,11 @@ if [[ -z "${CONFIG_sapi_domain}" ]]; then
 fi
 SAPI_URL="http://${CONFIG_sapi_domain}"
 
-import_smf_manifest
+if [[ "$(uname)" == "Linux" ]]; then
+    import_system_services
+else
+    import_smf_manifest
+fi
 
 INSTANCE_UUID="$(get_or_create_instance_uuid)"
 
