@@ -12,7 +12,7 @@
 # This file is delivered as part of the Triton Platform Image.
 #
 [Unit]
-Description=Triton cn-agent used to manage Compute Nodes
+Description=Triton cn-agent setup service
 Documentation=https://github.com/joyent/linux-live/tree/linuxcn
 After=network.target
 
