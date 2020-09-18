@@ -139,10 +139,10 @@ function import_smf_manifest
 function import_system_services
 {
     local agent_service_in="$ROOT/systemd/triton-cn-agent.service.in"
-    local agent_service_out="/etc/systemd/system/triton-cn-agent.service"
+    local agent_service_out="/usr/lib/systemd/triton-cn-agent.service"
     local agent_service_keep="$ROOT/systemd/triton-cn-agent.service"
     local agent_update_service_in="$ROOT/systemd/triton-cn-agent-update.service.in"
-    local agent_update_service_out="/etc/systemd/system/triton-cn-agent-update.service"
+    local agent_update_service_out="/usr/lib/systemd/triton-cn-agent-update.service"
     local agent_update_service_keep="$ROOT/systemd/triton-cn-agent-update.service"
 
     if [[ ! -f "${agent_service_in}" ]]; then
@@ -165,9 +165,8 @@ function import_system_services
     fi
 
     cp "${agent_service_out}" "${agent_service_keep}"
-    cp "${agent_updae_service_out}" "${agent_update_service_keep}"
+    cp "${agent_update_service_out}" "${agent_update_service_keep}"
 }
-
 
 #
 # Each installation of an agent is represented by a SAPI instance of the SAPI
