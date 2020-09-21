@@ -139,10 +139,10 @@ function import_smf_manifest
 function import_system_services
 {
     local agent_service_in="$ROOT/systemd/triton-cn-agent.service.in"
-    local agent_service_out="/usr/lib/systemd/triton-cn-agent.service"
+    local agent_service_out="/usr/lib/systemd/system/triton-cn-agent.service"
     local agent_service_keep="$ROOT/systemd/triton-cn-agent.service"
     local agent_update_service_in="$ROOT/systemd/triton-cn-agent-update.service.in"
-    local agent_update_service_out="/usr/lib/systemd/triton-cn-agent-update.service"
+    local agent_update_service_out="/usr/lib/systemd/system/triton-cn-agent-update.service"
     local agent_update_service_keep="$ROOT/systemd/triton-cn-agent-update.service"
 
     if [[ ! -f "${agent_service_in}" ]]; then
