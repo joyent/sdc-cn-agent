@@ -15,7 +15,6 @@
     "forkexec": "1.1.0",
     "imgmanifest": "3.1.0",
     "jsprim": "2.0.0",
-    "kstat": "1.0.1",
     "lazy-property": "1.0.0",
     "lstream": "0.0.4",
     "mkdirp": "^0.3.4",
@@ -37,6 +36,9 @@
     "verror": "1.10.0",
     "vmadm": "git+https://github.com/joyent/node-vmadm.git#linuxcn",
     "zfs": "git+https://github.com/joyent/node-zfs.git#linuxcn"
+  },
+  "optionalDependencies": {
+    "kstat": "1.0.1"
   },
   "sdcDependencies": {
     "config-agent": ">=1.3.0"
