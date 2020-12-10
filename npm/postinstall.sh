@@ -138,20 +138,20 @@ function import_smf_manifest
 #
 function import_system_services
 {
-    local agent_service_in="$ROOT/systemd/triton-cn-agent.service.in"
-    local agent_service_out="/usr/lib/systemd/system/triton-cn-agent.service"
-    local agent_service_keep="$ROOT/systemd/triton-cn-agent.service"
-    local agent_update_service_in="$ROOT/systemd/triton-cn-agent-update.service.in"
-    local agent_update_service_out="/usr/lib/systemd/system/triton-cn-agent-update.service"
-    local agent_update_service_keep="$ROOT/systemd/triton-cn-agent-update.service"
+    local agent_service_in="$ROOT/systemd/triton-$AGENT.service.in"
+    local agent_service_out="/usr/lib/systemd/system/triton-$AGENT.service"
+    local agent_service_keep="$ROOT/systemd/triton-$AGENT.service"
+    local agent_update_service_in="$ROOT/systemd/triton-$AGENT-update.service.in"
+    local agent_update_service_out="/usr/lib/systemd/system/triton-$AGENT-update.service"
+    local agent_update_service_keep="$ROOT/systemd/triton-$AGENT-update.service"
 
     if [[ ! -f "${agent_service_in}" ]]; then
         fatal 'could not find systemd service input file: %s' "${agent_service_in}"
     fi
 
     if ! subfile "${agent_service_in}" "${agent_service_out}" "normal" ||
-      ! systemctl enable "triton-cn-agent" ||
-      ! systemctl start "triton-cn-agent"; then
+      ! systemctl enable "triton-$AGENT" ||
+      ! systemctl start "triton-$AGENT"; then
         fatal 'could not process systemd service (%s)' "${agent_service_in}"
     fi
 
@@ -160,7 +160,7 @@ function import_system_services
     fi
 
     if ! subfile "${agent_update_service_in}" "${agent_update_service_out}" "update" ||
-      ! systemctl enable "triton-cn-agent-update"; then
+      ! systemctl enable "triton-$AGENT-update"; then
         fatal 'could not process systemd service (%s)' "${agent_update_service_in}"
     fi
 
