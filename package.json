@@ -1,7 +1,7 @@
 {
   "name": "cn-agent",
   "description": "Triton Compute Node Agent",
-  "version": "2.14.4",
+  "version": "2.14.5",
   "author": "Joyent (joyent.com)",
   "private": true,
   "dependencies": {
